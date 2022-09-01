@@ -1,6 +1,8 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/AI-Pre-Internship-TeamG/backend
+	branch = develop
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/AI-Pre-Internship-TeamG/frontend
+	branch = develop
