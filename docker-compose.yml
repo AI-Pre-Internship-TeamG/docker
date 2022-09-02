@@ -40,6 +40,18 @@ services:
       - postgres
     links:
     - "postgres:sql-server"
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    hostname: teamg
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    ports:
+      - 6397:6397
+    command: redis-server --port 6379
+
   backend:
     image: backend
     container_name: backend
@@ -53,6 +65,7 @@ services:
       - ./backend:/backend
     depends_on:
       - postgres
+      - redis
     environment:
       POSTGRES_NAME: postgre
       POSTGRES_USER: gggg
