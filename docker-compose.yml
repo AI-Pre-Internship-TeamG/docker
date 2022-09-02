@@ -12,6 +12,34 @@ services:
       - ./frontend:/frontend
       - /frontend/node_modules
   
+  postgres:
+    image: postgres
+    container_name: postgresql
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: postgre
+      POSTGRES_USER: gggg
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: teamg@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - 8080:8080
+    volumes:
+      - postgre_admin_data_dev:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    links:
+    - "postgres:sql-server"
   backend:
     image: backend
     container_name: backend
@@ -31,19 +59,7 @@ services:
       POSTGRES_PASSWORD: password
     links:
       - postgres:postgres
-  
-  postgres:
-    image: postgres
-    container_name: postgresql
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_DB: postgre
-      POSTGRES_USER: gggg
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
 
 volumes:
   postgres_data_dev: null
+  postgre_admin_data_dev: null
