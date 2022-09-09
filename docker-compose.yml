@@ -68,6 +68,20 @@ services:
       POSTGRES_PASSWORD: password
     links:
       - postgres:postgres
+    
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    command: rabbitmq-server
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    depends_on:
+      - backend
 
 volumes:
   postgres_data_dev: null
