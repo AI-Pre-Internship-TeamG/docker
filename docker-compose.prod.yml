@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+  nginx:
+    image: nginx:latest
+    build: ./nginx
+    ports:
+      - 80:8080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+    restart: always
+  
+  frontend:
+    image: frontend
+    container_name: frontend
+    build:
+      context: ./frontend
+    stdin_open: true
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:8000
+    volumes:
+      - ./frontend/:/frontend
+      - build_folder:/frontend/build
+      - /frontend/node_modules
+    tty: true
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    command: redis-server --port 6379
+
+  backend:
+    image: backend
+    container_name: backend
+    restart: always
+    build:
+      context: ./backend
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/backend
+    depends_on:
+      - redis
+    
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    command: rabbitmq-server
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    depends_on:
+      - backend
+
+volumes:
+  build_folder: null
