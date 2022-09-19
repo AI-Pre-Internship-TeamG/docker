@@ -62,5 +62,29 @@ services:
     depends_on:
       - backend
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - backend
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3333:3000
+    volumes:
+      - ./monitoring/grafana.yml:/etc/grafana/provisioning/grafana.yml
+    restart: always
+    depends_on:
+      - prometheus
+
 volumes:
   build_folder: null
