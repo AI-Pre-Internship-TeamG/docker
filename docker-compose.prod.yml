@@ -1,18 +1,6 @@
 version: "3.7"
 
 services:
-  nginx:
-    image: nginx:latest
-    build: ./nginx
-    ports:
-      - 80:8080
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - build_folder:/var/www/frontend
-    depends_on:
-      - backend
-      - frontend
-    restart: always
   
   frontend:
     image: frontend
@@ -25,7 +13,7 @@ services:
     volumes:
       - ./frontend/:/frontend
       - build_folder:/frontend/build
-      - /frontend/node_modules
+      - ./frontend/node_modules/:/frontend/node_modules
     tty: true
 
   redis:
@@ -85,6 +73,23 @@ services:
     restart: always
     depends_on:
       - prometheus
+  
+  nginx:
+    container_name: nginx
+    image: nginx:1.23-alpine
+    build: ./nginx
+    extra_hosts:
+      - host.docker,internal:host-gateway
+    ports:
+      - 80:8080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
 
 volumes:
   build_folder: null
+
+      
