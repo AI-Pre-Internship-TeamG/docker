@@ -25,21 +25,21 @@ services:
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: teamg@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_LISTEN_PORT: 8080
-    ports:
-      - 8080:8080
-    volumes:
-      - postgre_admin_data_dev:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    links:
-    - "postgres:sql-server"
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: teamg@gmail.com
+  #     PGADMIN_DEFAULT_PASSWORD: password
+  #     PGADMIN_LISTEN_PORT: 8080
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - postgre_admin_data_dev:/var/lib/pgadmin
+  #   depends_on:
+  #     - postgres
+  #   links:
+  #   - "postgres:sql-server"
 
   redis:
     image: redis:alpine
@@ -86,9 +86,11 @@ services:
   ai:
     build:
       context: ./AI
-    command: python main.py
+    command: python3 main.py
+    environment:
+      FLASK_DEBUG: 1
     ports:
-      - 8001:8001
+      - 8080:8080
 
 volumes:
   postgres_data_dev: null
