@@ -83,6 +83,13 @@ services:
     depends_on:
       - backend
 
+  ai:
+    build:
+      context: ./AI
+    command: python main.py
+    ports:
+      - 8001:8001
+
 volumes:
   postgres_data_dev: null
   postgre_admin_data_dev: null
