@@ -103,6 +103,15 @@ services:
     ports:
       - 9100:9100
     restart: always
+    
+  ai:
+    build:
+      context: ./AI
+    command: python3 main.py
+    environment:
+      FLASK_DEBUG: 1
+    ports:
+      - 8888:8888
 
 volumes:
   build_folder: null
