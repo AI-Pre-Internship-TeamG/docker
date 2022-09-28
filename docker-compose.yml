@@ -90,7 +90,7 @@ services:
     environment:
       FLASK_DEBUG: 1
     ports:
-      - 8080:8080
+      - 8888:8888
 
 volumes:
   postgres_data_dev: null
