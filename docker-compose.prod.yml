@@ -1,0 +1,119 @@
+version: "3.7"
+
+services:
+  
+  frontend:
+    image: frontend
+    container_name: frontend
+    build:
+      context: ./frontend
+    stdin_open: true
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:8000
+    volumes:
+      - ./frontend/:/frontend
+      - build_folder:/frontend/build
+      - ./frontend/node_modules/:/frontend/node_modules
+    tty: true
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    command: redis-server --port 6379
+
+  backend:
+    image: backend
+    container_name: backend
+    restart: always
+    build:
+      context: ./backend
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/backend
+    depends_on:
+      - redis
+    
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    command: rabbitmq-server
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+    depends_on:
+      - backend
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - backend
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3333:3000
+    volumes:
+      - ./monitoring/grafana.yml:/etc/grafana/provisioning/grafana.yml
+    restart: always
+    depends_on:
+      - prometheus
+  
+  nginx:
+    container_name: nginx
+    image: nginx:1.23-alpine
+    build: ./nginx
+    extra_hosts:
+      - host.docker,internal:host-gateway
+    ports:
+      - 80:8080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - build_folder:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    ports:
+      - 9100:9100
+    restart: always
+    
+  ai:
+    build:
+      context: ./AI
+    command: python3 main.py
+    environment:
+      FLASK_DEBUG: 1
+    ports:
+      - 8888:8888
+
+volumes:
+  build_folder: null
+
+      
