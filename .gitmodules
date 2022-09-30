@@ -6,3 +6,6 @@
 	path = frontend
 	url = https://github.com/AI-Pre-Internship-TeamG/frontend
 	branch = develop
+[submodule "AI"]
+	path = AI
+	url = https://github.com/AI-Pre-Internship-TeamG/AI.git
